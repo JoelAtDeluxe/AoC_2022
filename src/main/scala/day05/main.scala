@@ -21,7 +21,7 @@ object Main {
       // .map(l => ("""move (\d+) from (\d+) to (\d+)"""))
       .map(_.split(" +"))
       .map(l => (l(1).toInt, l(3), l(5)))
-      .map(p => new Instruction(p._1, p._2, p._3))
+      .map(p => Instruction(p._1, p._2, p._3))
 
     var queue9000 = queues.toSeq.toMap
     instructions.foreach(inst => {
@@ -100,10 +100,10 @@ object Main {
 
 }
 
-class Instruction(
-  val quantity: Int,
-  val source: String,
-  val destination: String
+case class Instruction(
+  quantity: Int,
+  source: String,
+  destination: String
   ) {
   def print() = {
     println(s"From ${source} Move ${quantity} to ${destination}")

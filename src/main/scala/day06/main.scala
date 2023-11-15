@@ -66,5 +66,3 @@ object Main {
       .toList
   }
 }
-
-object TriOption
