@@ -3,7 +3,6 @@ package day09
 import scala.io.Source
 import scala.collection.mutable
 import scala.collection.immutable.HashSet
-import {Up, Right, Direction, Down, Left}
 
 object Main {
 
