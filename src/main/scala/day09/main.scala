@@ -11,20 +11,29 @@ object Main {
       .fromResource("day09_input.txt")
       .getLines()
 
-    // drawAndSolve(stepFeed)
-    val junk = traceTail(stepFeed)
-    println(s"Part 1: ${junk.size}")
+    val simpleRope = List((0,0), (0,0))
+    val longRope = List(
+      (0, 0), (0, 0), (0, 0),
+      (0, 0), (0, 0), (0, 0),
+      (0, 0), (0, 0), (0, 0),
+      (0, 0))
+
+    // drawAndSolve(stepFeed, longRope, 26, (9, 11))
+    val splitFeed = stepFeed.duplicate
+    var visitedSet = traceTail(splitFeed._1, simpleRope)
+    println(s"Part 1: short rope visited: ${visitedSet.size}")
+
+    visitedSet = traceTail(splitFeed._2, longRope)
+    println(s"Part 2: long rope visited ${visitedSet.size}")
+
   }
 
-  def traceTail(stepper: Iterator[String]) = {
-    val headStartPos = (0, 0)
-    val tailStartPos = (0, 0)
-
+  def traceTail(stepper: Iterator[String], initialRope: List[(Int, Int)]) = {
     val visited = new HashSet[(Int, Int)]()
-    val finalVisisted = stepper.foldLeft( (visited + tailStartPos, headStartPos, tailStartPos))( (acc, cur) => {
+    val finalVisisted = stepper.foldLeft( (visited + initialRope.last, initialRope))( (acc, cur) => {
       val parts = cur.split(" ")
 
-      var (currentVisisted, currentHead, currentTail) = acc
+      var (currentVisisted, currentRope) = acc
 
       val movement = parts(1).toInt
       val direction = parts(0) match {
@@ -35,18 +44,18 @@ object Main {
       }
 
       (0 until movement).foreach( _ => {
-        val result = performStep(direction, currentHead, currentTail)
-        currentHead = result._1
-        currentTail = result._2
-        currentVisisted = currentVisisted + currentTail
+        val result = performStep(direction, currentRope)
+        currentRope = result
+        currentVisisted = currentVisisted + currentRope.last
       })
-      (currentVisisted, currentHead, currentTail)
+      (currentVisisted, currentRope)
     })
 
     finalVisisted._1
   }
 
-  def performStep(direction: Direction, headPos: (Int, Int), tailPos: (Int, Int)): ((Int, Int), (Int, Int)) = {
+  def performStep(direction: Direction, ropeSegments: List[(Int, Int)]): List[(Int, Int)] = {
+    val headPos = ropeSegments.head
     val newHead = direction match {
       case _: Up => (headPos._1 - 1, headPos._2)
       case _: Down => (headPos._1 + 1, headPos._2)
@@ -54,8 +63,14 @@ object Main {
       case _: Right => (headPos._1, headPos._2 + 1)
     }
 
-    val newTail = moveTail(newHead, tailPos)
-    (newHead, newTail)
+    var segmentHead = newHead
+    val newTail = ropeSegments.tail.map( tailSegment => {
+      val newSegmentTail = moveTail(segmentHead, tailSegment)
+      segmentHead = newSegmentTail
+      newSegmentTail
+    })
+    
+    newHead +: newTail
   }
 
   def moveTail(headPos: (Int, Int), tailPos: (Int, Int)): (Int, Int) = {
@@ -99,11 +114,15 @@ object Main {
     }
   }
 
-  def drawAndSolve(stepper: Iterator[String]) = {
+  def drawAndSolve(
+    stepper: Iterator[String],
+    initialRope: List[(Int, Int)],
+    gridSize: Int=5,
+    start: (Int, Int)=(0,0)
+    ) = {
     val visited = mutable.Set[(Int, Int)]()
-    var headPos = (0, 0)
-    var tailPos = (0, 0)
-    visited.add(tailPos)
+    var rope = initialRope.map(_ => start)
+    visited.add(rope.last)
 
     for (row <- stepper) {
       val parts = row.split(" ")
@@ -111,21 +130,21 @@ object Main {
       val direction = parts(0) match {
         case "R" => Right()
         case "L" => Left()
+        // swap to make drawing look like example
         case "U" => Down() // Up()
         case "D" => Up() //   Down()
       }
 
       for (_ <- 0 until movement) {
-        val result = performStep(direction, headPos, tailPos)
-        headPos = result._1
-        tailPos = result._2
-        visited.add(tailPos)
+        rope = performStep(direction, rope)
+        visited.add(rope.last)
 
-        for(r <- 4 to 0 by -1) {
-          for(c <- 0 until 5) {
+        for(r <- (gridSize-1) to 0 by -1) {
+          for(c <- 0 until gridSize) {
             val ch = (r, c) match {
-              case v if v == headPos => "H"
-              case v if v == tailPos => "T"
+              case v if v == rope.head => "H"
+              case v if rope.indexOf(v) > -1 => rope.indexOf(v)
+              case v if v == rope.last => "T"
               case v if visited.contains(v) => "#"
               case _ => "."
             }
@@ -133,9 +152,16 @@ object Main {
           }
           println()
         }
+        printRope(rope)
         println()
+
       }
     }
     println(s"Total spots tail visisted: ${visited.size}")
+  }
+
+  def printRope(rope: List[(Int, Int)]) = {
+    println(rope.map(seg => s"(${seg._1}, ${seg._2})").mkString(" -> "))
+
   }
 }
