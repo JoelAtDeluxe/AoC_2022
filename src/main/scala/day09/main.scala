@@ -90,26 +90,19 @@ object Main {
       case ( 2,  0) => (tailPos._1 + 1, tailPos._2) // down
       case ( 0,  2) => (tailPos._1, tailPos._2 + 1) // right
 
-      // up lefts
-      // case (-2, -1) => ??? // up left
-      // case (-1, -2) => ??? // left up
-      case (-2, -1) | (-1, -2) => (tailPos._1 -1, tailPos._2 - 1)
-
-      // up rights
-      // case (-2,  1) => ??? // up right
-      // case (-1,  2) => ??? // right up
-      case (-2,  1) | (-1,  2) => (tailPos._1 -1, tailPos._2 + 1) // right up
-
-      // down rights
-      // case ( 2,  1) => ??? // Down right
-      // case ( 1,  2) => ??? // right Down
-      case ( 2,  1) | ( 1,  2) => (tailPos._1 + 1, tailPos._2 + 1) // right Down
-
-
-      // down left
-      // case ( 2, -1) => ??? // down left
-      // case ( 1, -2) => ??? // left down
-      case ( 2, -1) | ( 1, -2) => (tailPos._1 + 1, tailPos._2 - 1) // left down
+      // L-Shaped
+      case (-2, -1) | (-1, -2) => (tailPos._1 -1, tailPos._2 - 1) //up-left
+      case (-2,  1) | (-1,  2) => (tailPos._1 -1, tailPos._2 + 1) // up-right
+      case ( 2,  1) | ( 1,  2) => (tailPos._1 + 1, tailPos._2 + 1) // down-right
+      case ( 2, -1) | ( 1, -2) => (tailPos._1 + 1, tailPos._2 - 1) // down-left
+      
+      // diagonals
+      case (-2, -2) => (tailPos._1 - 1, tailPos._2 - 1) // up-left
+      case (-2,  2) => (tailPos._1 - 1, tailPos._2 + 1) // up-right
+      case ( 2,  2) => (tailPos._1 + 1, tailPos._2 + 1) // down-right
+      case ( 2, -2) => (tailPos._1 + 1, tailPos._2 - 1) // down-left
+      
+      // non-moves
       case _ => tailPos
     }
   }
