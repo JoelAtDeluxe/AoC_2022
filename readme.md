@@ -82,6 +82,8 @@ Goal: Pretty much entirely functinoal approach. allowing myself these things:
   * Good example of super basic `sealed trait` (direction.scala)
   * Coplex drawing grid
 * Day 10
+  * Example of how to make an iterator
+  * Expand a list into something suitable for varags with `:_*`
 
 ## Language Insights / Takes
 
