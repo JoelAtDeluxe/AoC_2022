@@ -6,51 +6,38 @@ import scala.annotation.tailrec
 object Main {
   def main(args: Array[String]) = {
     val monkeys = Source
-      .fromResource("day11_sample.txt")
+      .fromResource("day11_input.txt")
       .mkString
       .split("\n\n")
       .map(monkey => parseMonkey(monkey))
 
-    var inspectedCounts = monkeys.map(m => 0l)
-
-    def callback(monkeyId: Int, numTossed: Long) = {
-      inspectedCounts(monkeyId) += numTossed
-      // println(s"=> ${inspectedCounts.mkString(", ")}")
-    }
-
-    // println("Initial State: ")
-    // println(s"*  ${monkeys.map(_.short()).mkString(", ")}")
-    val numRounds = 20
-    runRounds(monkeys, numRounds, callback)
-
+    val (_, inspectedCounts) = runRounds(monkeys, 20, monkeys.map(m => 0l))
     val topTwo = inspectedCounts.sorted.reverse.slice(0, 2)
 
-    println(s"Part 1: At the end of $numRounds rounds, the top two monkeys handled ${topTwo.mkString(", and ")} items")
+    println(s"Part 1: At the end of 20 rounds, the top two monkeys handled ${topTwo.mkString(", and ")} items")
     println(s"The level of monkey business is: ${topTwo.product}")
-
-    inspectedCounts = monkeys.map(m => 0l)
     
-    val dangerousMonkeys = monkeys.map(m => Monkey(m, true))
-    runRounds(dangerousMonkeys, 20, callback)
-    println(s"=> ${inspectedCounts.mkString(", ")}")
+    // val dangerousMonkeys = monkeys.map(m => Monkey.update(m, isDangerous=Some(true)))
+    // val (_, dangerousInspectCounts) = runRounds(dangerousMonkeys, 20, dangerousMonkeys.map(m => 0l))
+    // println(s"=> ${dangerousInspectCounts.mkString(", ")}")
 
-    val topTwoDangerous = inspectedCounts.sorted.reverse.slice(0, 2)
+    // val topTwoDangerous = dangerousInspectCounts.sorted.reverse.slice(0, 2)
 
-    println(s"Part 2: At the end of 10000 rounds, the top two dangerous monkeys handled ${topTwoDangerous.mkString(", and ")} items")
-    println(s"The level of monkey business is: ${topTwoDangerous.product}")
+    // println(s"Part 2: At the end of 10000 rounds, the top two dangerous monkeys handled ${topTwoDangerous.mkString(", and ")} items")
+    // println(s"The level of monkey business is: ${topTwoDangerous.product}")
   }
 
   @tailrec
   def runRounds(
       monkeys: Array[Monkey],
       roundsRemaining: Int,
-      onTossed: (Int, Long) => Unit
-  ): Array[Monkey] = {
+      tossedCounts: Array[Long]
+  ): (Array[Monkey], Array[Long]) = {
     if (roundsRemaining <= 0) {
-      monkeys
+      (monkeys, tossedCounts)
     } else {
-      val newMonkeys = runRound(monkeys, 0, onTossed)
-      runRounds(newMonkeys, roundsRemaining - 1, onTossed)
+      val (newMonkeys, updatedTossCounts) = runRound(monkeys, 0, tossedCounts)
+      runRounds(newMonkeys, roundsRemaining - 1, updatedTossCounts)
     }
   }
 
@@ -58,22 +45,22 @@ object Main {
   def runRound(
       monkeys: Array[Monkey],
       startFrom: Int = 0,
-      onTossed: (Int, Long) => Unit
-  ): Array[Monkey] = {
+      tossedCounts: Array[Long]
+  ): (Array[Monkey], Array[Long]) = {
     if (startFrom < monkeys.length) {
       val tosser     = monkeys(startFrom)
       val newMonkeys = runTurn(monkeys, startFrom)
 
       // println(s"Turn ${startFrom} End!\n!  ${newMonkeys.map(_.short()).mkString(", ")}")
 
-      onTossed(startFrom, tosser.items.length)
-      runRound(newMonkeys, startFrom + 1, onTossed)
+      var updatedTossCount = addTossToCount(tossedCounts, startFrom, tosser.items.length)
+      runRound(newMonkeys, startFrom + 1, updatedTossCount)
     } else {
       // println("End of round!")
       // println("==========================")
       // monkeys.foreach(_.print())
       // println(">>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<")
-      monkeys
+      (monkeys, tossedCounts)
     }
   }
 
@@ -116,6 +103,10 @@ object Main {
       }
     }
     Monkey(id, None, items, inspect, toss)
+  }
+
+  def addTossToCount(tossCnt: Array[Long], updatedIndex: Int, qty: Long): Array[Long] = {
+    tossCnt.zipWithIndex.map(entry => if (entry._2 == updatedIndex) qty + entry._1 else entry._1 )
   }
 
 }

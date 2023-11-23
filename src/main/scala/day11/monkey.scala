@@ -17,16 +17,21 @@ case class Monkey(
 }
 
 object Monkey {
-    def apply(base: Monkey, isDangerous: Boolean): Monkey = {
-      Monkey(
-        base.id,
-        base.heldItem,
-        base.items,
-        base.inspect,
-        base.toss,
-        isDangerous
-      )
-    }
+  def update(
+      base: Monkey,
+      heldItem: Option[Option[Long]] = None,
+      items: Option[List[Long]] = None,
+      isDangerous: Option[Boolean] = None
+  ): Monkey = {
+    Monkey(
+      id = base.id,
+      heldItem = heldItem.getOrElse(base.heldItem),
+      items = items.getOrElse(base.items),
+      inspect = base.inspect,
+      toss = base.toss,
+      isDangerous = isDangerous.getOrElse(base.isDangerous)
+    )
+  }
 }
 
 object MonkeyFun {
@@ -36,33 +41,26 @@ object MonkeyFun {
     val itemToThrow      = thoughtfulMonkey.heldItem.get
     val targetMonkeyId   = thoughtfulMonkey.toss(itemToThrow)
     // println(s" -> throw to $targetMonkeyId")
-    val updatedMonkey = Monkey(
-      thoughtfulMonkey.id,
-      None,
-      thoughtfulMonkey.items,
-      thoughtfulMonkey.inspect,
-      thoughtfulMonkey.toss
-    )
+    val updatedMonkey = Monkey.update(thoughtfulMonkey, heldItem=Some(None))
     (itemToThrow, updatedMonkey, targetMonkeyId)
   }
 
   def giveItemToMonkey(m: Monkey, item: Long): Monkey = {
-    Monkey(m.id, None, m.items :+ item, m.inspect, m.toss)
+    Monkey.update(m, heldItem=Some(None), items=Some(m.items :+ item) )
   }
 
   def holdItem(m: Monkey): Monkey = {
     val nextItem           = m.items.head
     val inspectedItemWorry = m.inspect(nextItem)
     val newItemValue       = inspectedItemWorry / 3
-    // print(s"i $nextItem => $inspectedItemWorry => $newItemValue")
-
-    Monkey(m.id, Some(newItemValue), m.items.tail, m.inspect, m.toss)
+    // print(s"BAD! i $nextItem => $inspectedItemWorry => $newItemValue")
+    Monkey.update(m, heldItem=Some(Some(newItemValue)), items=Some(m.items.tail))
   }
 
   def holdItemDangerously(m: Monkey): Monkey = {
     val nextItem           = m.items.head
     val inspectedItemWorry = m.inspect(nextItem)
-
-    Monkey(m.id, Some(inspectedItemWorry), m.items.tail, m.inspect, m.toss)
+    // print(s"i $nextItem => $inspectedItemWorry")
+    Monkey.update(m, heldItem=Some(Some(inspectedItemWorry)), items=Some(m.items.tail))
   }
 }
