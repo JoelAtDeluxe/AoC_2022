@@ -11,33 +11,36 @@ object Main {
       .split("\n\n")
       .map(monkey => parseMonkey(monkey))
 
-    val (_, inspectedCounts) = runRounds(monkeys, 20, monkeys.map(m => 0l))
+    val commonDivisor = monkeys.map(_.testDivisor).product
+
+    val simpleTossFn = MonkeyFun.buildTossItemFn(None)
+    val (_, inspectedCounts) = runRounds(monkeys, 20, monkeys.map(m => 0l), simpleTossFn)
     val topTwo = inspectedCounts.sorted.reverse.slice(0, 2)
 
     println(s"Part 1: At the end of 20 rounds, the top two monkeys handled ${topTwo.mkString(", and ")} items")
     println(s"The level of monkey business is: ${topTwo.product}")
     
-    // val dangerousMonkeys = monkeys.map(m => Monkey.update(m, isDangerous=Some(true)))
-    // val (_, dangerousInspectCounts) = runRounds(dangerousMonkeys, 20, dangerousMonkeys.map(m => 0l))
-    // println(s"=> ${dangerousInspectCounts.mkString(", ")}")
+    val complexTossFn = MonkeyFun.buildTossItemFn(Some(commonDivisor))
+    val dangerousMonkeys = monkeys.map(m => Monkey.update(m, isDangerous=Some(true)))
+    val (_, dangerousInspectCounts) = runRounds(dangerousMonkeys, 10000, dangerousMonkeys.map(m => 0l), complexTossFn)
+    val topTwoDangerous = dangerousInspectCounts.sorted.reverse.slice(0, 2)
 
-    // val topTwoDangerous = dangerousInspectCounts.sorted.reverse.slice(0, 2)
-
-    // println(s"Part 2: At the end of 10000 rounds, the top two dangerous monkeys handled ${topTwoDangerous.mkString(", and ")} items")
-    // println(s"The level of monkey business is: ${topTwoDangerous.product}")
+    println(s"Part 2: At the end of 10000 rounds, the top two dangerous monkeys handled ${topTwoDangerous.mkString(", and ")} items")
+    println(s"The level of monkey business is: ${topTwoDangerous.product}")
   }
 
   @tailrec
   def runRounds(
       monkeys: Array[Monkey],
       roundsRemaining: Int,
-      tossedCounts: Array[Long]
+      tossedCounts: Array[Long],
+      tossFn: (Monkey) => (Long, Monkey, Int)
   ): (Array[Monkey], Array[Long]) = {
     if (roundsRemaining <= 0) {
       (monkeys, tossedCounts)
     } else {
-      val (newMonkeys, updatedTossCounts) = runRound(monkeys, 0, tossedCounts)
-      runRounds(newMonkeys, roundsRemaining - 1, updatedTossCounts)
+      val (newMonkeys, updatedTossCounts) = runRound(monkeys, 0, tossedCounts, tossFn)
+      runRounds(newMonkeys, roundsRemaining - 1, updatedTossCounts, tossFn)
     }
   }
 
@@ -45,32 +48,31 @@ object Main {
   def runRound(
       monkeys: Array[Monkey],
       startFrom: Int = 0,
-      tossedCounts: Array[Long]
+      tossedCounts: Array[Long],
+      tossFn: (Monkey) => (Long, Monkey, Int)
   ): (Array[Monkey], Array[Long]) = {
     if (startFrom < monkeys.length) {
       val tosser     = monkeys(startFrom)
-      val newMonkeys = runTurn(monkeys, startFrom)
-
-      // println(s"Turn ${startFrom} End!\n!  ${newMonkeys.map(_.short()).mkString(", ")}")
+      val newMonkeys = runTurn(monkeys, startFrom, tossFn)
 
       var updatedTossCount = addTossToCount(tossedCounts, startFrom, tosser.items.length)
-      runRound(newMonkeys, startFrom + 1, updatedTossCount)
+      runRound(newMonkeys, startFrom + 1, updatedTossCount, tossFn)
     } else {
-      // println("End of round!")
-      // println("==========================")
-      // monkeys.foreach(_.print())
-      // println(">>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<")
       (monkeys, tossedCounts)
     }
   }
 
   @tailrec
-  def runTurn(monkeys: Array[Monkey], monkeyIndex: Int): Array[Monkey] = {
+  def runTurn(
+    monkeys: Array[Monkey],
+    monkeyIndex: Int,
+    tossFn: (Monkey) => (Long, Monkey, Int)
+  ): Array[Monkey] = {
     if (monkeys(monkeyIndex).items.isEmpty) {
       monkeys
     } else {
       val currentMonkey                     = monkeys(monkeyIndex)
-      val (item, newMonkey, targetMonkeyId) = MonkeyFun.tossItem(currentMonkey)
+      val (item, newMonkey, targetMonkeyId) = tossFn(currentMonkey)
 
       val newMonkeyState = monkeys.map(m => {
         m.id match {
@@ -79,7 +81,7 @@ object Main {
           case _                  => m
         }
       })
-      runTurn(newMonkeyState, monkeyIndex)
+      runTurn(newMonkeyState, monkeyIndex, tossFn)
     }
   }
 
@@ -102,7 +104,7 @@ object Main {
         ifFalse
       }
     }
-    Monkey(id, None, items, inspect, toss)
+    Monkey(id, None, items, inspect, toss, testDivisor)
   }
 
   def addTossToCount(tossCnt: Array[Long], updatedIndex: Int, qty: Long): Array[Long] = {
