@@ -6,7 +6,7 @@ import scala.annotation.tailrec
 object Main {
   def main(args: Array[String]) = {
     val monkeys = Source
-      .fromResource("day11_input.txt")
+      .fromResource("days11_20/day11_input.txt")
       .mkString
       .split("\n\n")
       .map(monkey => parseMonkey(monkey))

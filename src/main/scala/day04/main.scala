@@ -5,7 +5,7 @@ import scala.io.Source
 object Main {
   def main(args: Array[String]) = {
     val ranges = Source
-      .fromResource("day04_input.txt")
+      .fromResource("days01_10/day04_input.txt")
       .getLines()
       .map(lineToRange)
       .toList

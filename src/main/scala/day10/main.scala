@@ -5,7 +5,7 @@ import scala.io.Source
 
 object Main {
   def main(args: Array[String]) = {
-    val cmdFeed = Source.fromResource("day10_input.txt").getLines()
+    val cmdFeed = Source.fromResource("days01_10/day10_input.txt").getLines()
 
     val partFeeds = cmdFeed.duplicate
     

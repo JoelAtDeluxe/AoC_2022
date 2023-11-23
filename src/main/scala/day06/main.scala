@@ -7,7 +7,7 @@ object Main {
   def main(args: Array[String]) {
     // solvePracticeProblems()
 
-    val data          = Source.fromResource("day06_input.txt").mkString
+    val data          = Source.fromResource("days01_10/day06_input.txt").mkString
     val startOfSignal = solve(4, data, 4)
 
     startOfSignal match {

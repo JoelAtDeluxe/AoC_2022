@@ -8,7 +8,7 @@ object Main {
   def main(args: Array[String]) = {
     val zero = '0'.toInt // 48
     val grid = Source
-      .fromResource("day08_input.txt")
+      .fromResource("days01_10/day08_input.txt")
       .getLines()
       .map(line => line.chars().map(c => c.toInt - zero).toArray())
       .toArray

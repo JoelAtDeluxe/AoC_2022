@@ -8,7 +8,7 @@ object Main {
 
   def main(args: Array[String]) = {
     val guide = Source
-      .fromResource("day02_input.txt")
+      .fromResource("days01_10/day02_input.txt")
       .getLines()
       .map(line => line.split(" "))
       .map(entry => (opponentMove(entry(0)), playerMove(entry(1))))

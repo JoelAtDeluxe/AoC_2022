@@ -4,7 +4,7 @@ import scala.io.Source
 
 object TreeMain {
   def main(args: Array[String]) = {
-    val actions = Source.fromResource("day07_input.txt").getLines()
+    val actions = Source.fromResource("days01_10/day07_input.txt").getLines()
     // val actions = Source.fromResource("day07_sample.txt").getLines()
 
     val root = new Directory("/")

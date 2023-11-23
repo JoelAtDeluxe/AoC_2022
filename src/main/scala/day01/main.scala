@@ -4,7 +4,7 @@ import scala.io.Source
 
 object Main {
   def main(args: Array[String]) = {
-    val reader = Source.fromResource("day01_input.txt")
+    val reader = Source.fromResource("days01_10/day01_input.txt")
 
     val elfFood = reader.mkString // as a string
       .split("\n\n")                        // split on empty lines

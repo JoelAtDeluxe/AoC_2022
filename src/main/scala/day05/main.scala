@@ -8,7 +8,7 @@ object Main {
 
   def main(args: Array[String]) {
     val lines = Source
-      .fromResource("day05_input.txt")
+      .fromResource("days01_10/day05_input.txt")
       .getLines()
       .toList
 

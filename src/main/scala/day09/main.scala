@@ -8,7 +8,7 @@ object Main {
 
   def main(args: Array[String]) = {
     val stepFeed = Source
-      .fromResource("day09_input.txt")
+      .fromResource("days01_10/day09_input.txt")
       .getLines()
 
     val simpleRope = List((0,0), (0,0))
