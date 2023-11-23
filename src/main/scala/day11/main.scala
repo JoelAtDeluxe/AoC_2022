@@ -55,7 +55,7 @@ object Main {
       val tosser     = monkeys(startFrom)
       val newMonkeys = runTurn(monkeys, startFrom, tossFn)
 
-      var updatedTossCount = addTossToCount(tossedCounts, startFrom, tosser.items.length)
+      val updatedTossCount = addTossToCount(tossedCounts, startFrom, tosser.items.length)
       runRound(newMonkeys, startFrom + 1, updatedTossCount, tossFn)
     } else {
       (monkeys, tossedCounts)

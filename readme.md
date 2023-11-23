@@ -84,6 +84,10 @@ Goal: Pretty much entirely functinoal approach. allowing myself these things:
 * Day 10
   * Example of how to make an iterator
   * Expand a list into something suitable for varags with `:_*`
+* Day 11
+  * Decent functional approach -- I don't think there's any mutation here
+  * A few examples of returning a function
+  * A partial example of a alternate case constructor, but I didn't do it right because I ran into problems using it the way I wanted.
 
 ## Language Insights / Takes
 
