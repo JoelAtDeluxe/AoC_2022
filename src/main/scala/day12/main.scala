@@ -13,18 +13,14 @@ object Main {
 
     val updatedMap = readyGraph(lines, start, end)
 
-    import sys.process._
-    // (Seq("sh", "-c", "stty -icanon min 1 < /dev/tty") !)
-    // (Seq("sh", "-c", "stty -echo < /dev/tty") !)
+    // try {
+    //   stagedWalk(updatedMap, start, 'p')
+    // }
+    // finally {
+    //   // (Seq("sh", "-c", "stty cooked </dev/tty") !)
+    // }
 
-    try {
-      stagedWalk(updatedMap, start, 'p')
-    }
-    finally {
-      // (Seq("sh", "-c", "stty cooked </dev/tty") !)
-    }
-
-    // walk(updatedMap, start, end)
+    walk(updatedMap, start, end)
 
     println("Done")
   }
@@ -61,6 +57,7 @@ object Main {
       start: Coordinate,
       end: Coordinate
   ) = {
+    var seenNodes: List[CellScore] = List()
     val openSet = new MinHeap[CellScore]()
     openSet.addNode(CellScore(start, 0, distance(grid, start, end)))
 
@@ -74,6 +71,7 @@ object Main {
       println(s"OpenSet: ${openSet.render()}")
       val current = openSet.delete()
       println(current.coord)
+      seenNodes = current +: seenNodes
 
       if (current.coord == end) {
         stop = true
