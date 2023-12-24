@@ -1,0 +1,263 @@
+
+ 
+  +----> II{0} <-----------> JJ{21}
+  |
+  v
+ AA{0}      +--> EE{3} <---> FF{0}
+ ^   ^      |                  ^
+ |   |      v                  |
+ |   +---> DD{20} <---+        +---> GG{0} <--> HH{22}
+ |                    |
+ |                    v
+ +-----> BB{13} <--> CC{2}
+
+BB <-> CC 1
+BB <-> DD 2
+BB <-> EE 3
+BB <-> HH 6
+BB <-> JJ 3
+CC <-> DD 1
+CC <-> EE 2
+CC <-> HH 5
+CC <-> JJ 4
+DD <-> EE 1
+DD <-> HH 4
+DD <-> JJ 3
+EE <-> HH 3
+EE <-> JJ 4
+HH <-> JJ 7
+
+
+Move to D: 20 (2) => 100 (6) +
+Move to H: 22 (6) =>  22 (6)
+Move to J: 21 (3) =>  84 (6)
+Move to B: 13 (2) =>  65 (6)
+Move to C:  2 (3) =>   8 (6)
+Move to E:  3 (3) =>  12 (6) 
+
+Move to H: 22 (5) => 22 (5)
+Move to J: 21 (4) => 42 (5) +
+Move to B: 13 (3) => 39 (5)
+Move to C:  2 (2) =>  8 (5)
+Move to E:  3 (2) => 12 (5)
+
+
+A -> B ( 2 => 13)  => 13 * (30-2)  => 364 (28) | (22 * 6) - (13*2)  132 - 26
+A -> C ( 3 => 2)   =>  2 * (30-3)  => 54  (27) | (22 * 6) - (2*3)  132 - 6
+A -> D ( 2 => 20)  => 20 * (30-2)  => 560 (28) | (22 * 6) - (20*2)  132 - 40
+A -> E ( 3 => 3)   =>  3 * (30-3)  => 81  (27) | (22 * 6) - (3*3)  132 - 9
+A -> H ( 6 => 22)  => 22 * (30-6)  => 528 (24) | (22 * 6) - (22*6)  132 - 132
+A -> J ( 3 => 21)  => 21 * (30-3)  => 567 (27) | (22 * 6) - (21*3)  132 - 63
+
+A -> D (20)
+D -> B ( 3 => 13)  => 13 * (28-3) => (25) ? 
+D -> C ( 2 => 2)   => 2  * (28-2) => (26) ? 
+D -> E ( 2 => 3)   => 3  * (28-2) => (26) ? 
+D -> H ( 5 => 22)  => 22 * (28-5) => (23) ? 
+D -> J ( 4 => 21)  => 21 * (28-4) => (24) ? 
+
+
+D -> B ( 2 => 13)  => 13 * (30-2)  => 364 (28)
+D -> C ( 3 => 2)   =>  2 * (30-3)  => 54  (27)
+D -> E ( 3 => 3)   =>  3 * (30-3)  => 81  (27)
+D -> H ( 6 => 22)  => 22 * (30-6)  => 528 (24)
+D -> J ( 3 => 21)  => 21 * (30-3)  => 588 (27)
+
+
+
+A->J (21)
+J -> B ( 4 => 13)  => 13 * (28-4)  => 588 + (21 * 4) + 312  => 984  (24)
+J -> C ( 5 => 2)   =>  2 * (28-5)  => 588 + (21 * 5) + 46   => 739  (23)
+J -> D ( 4 => 20)  => 20 * (28-4)  => 588 + (21 * 4) + 480  => 1152 (24) * (2nd highest points, highest num turns)
+J -> E ( 5 => 3)   =>  3 * (28-5)  => 588 + (21 * 5) + 69   => 762  (23)
+J -> H ( 8 => 22)  => 22 * (28-8)  => 588 + (21 * 8) + 440  => 1196 (20)
+                                       ^        ^       ^
+                                Prev Total      |       |
+                                         travel cost    |
+                                                gain if doing nothing else
+
+A->J->D (21 + 20 = 42)
+D -> B ( 3 => 13)  => 13 * (24-3)  => 1152 + (42 * 3) + 273 => 1551 (21)
+D -> C ( 2 => 2)   => 2  * (24-2)  => 1152 + (42 * 2) + 44  => 1280 (22)
+D -> E ( 2 => 3)   => 3  * (24-2)  => 1152 + (42 * 2) + 66  => 1302 (22) *
+D -> H ( 5 => 22)  => 22 * (24-5)  => 1152 + (42 * 5) + 418 => 1780 (19)
+
+A->J->D->E (21 + 20 + 3 = 44)
+E -> B ( 4 => 13)  => 13 * (22-4)  => 1302 + (44 * 4) + 234 => 1712 (18)
+E -> C ( 2 => 2)   =>  2 * (22-2)  => 1302 + (44 * 2) + 40  => 1430 (20) *
+E -> H ( 3 => 22)  => 22 * (22-3)  => 1302 + (44 * 3) + 418 => 1852 (19) +
+
+A->J->D->E->C (21 + 20 + 3 + 2 = 46)
+C -> B ( 2 => 13)  => 13 * (20-2)  => 1430 + (46 * 2) + 234 => 1756 (18) * 
+C -> H ( 6 => 22)  => 22 * (20-6)  => 1430 + (46 * 6) + 308 => 2014 (14)
+
+A->J->D->E->C->B (21 + 20 + 3 + 2 + 13 = 59)
+B -> H ( 7 => 22)  => 22 * (20-7)  => 1756 + (59 * 7) + 286 => 2014 (14)
+
+
+D -> B ( 3 => 13)  =>  => 39
+D -> C ( 2 => 2)   =>  => 4
+D -> E ( 2 => 3)   =>  => 6
+D -> H ( 5 => 22)  =>  => 0
+D -> J ( 4 => 21)  =>  => 42
+
+
+// important distances
+AA <-> BB 1
+AA <-> CC 2
+AA <-> DD 1
+AA <-> EE 2
+AA <-> HH 5
+AA <-> JJ 2
+BB <-> CC 1
+BB <-> DD 2
+BB <-> EE 3
+BB <-> HH 6
+BB <-> JJ 3
+CC <-> DD 1
+CC <-> EE 2
+CC <-> HH 5
+CC <-> JJ 4
+DD <-> EE 1
+DD <-> HH 4
+DD <-> JJ 3
+EE <-> HH 3
+EE <-> JJ 4
+HH <-> JJ 7
+
+6 8 5 4
+
+// distances (initial)
+
+AA -> AA _   BB -> AA 1   CC -> AA _   DD -> AA 1   EE -> AA _
+AA -> BB 1   BB -> BB _   CC -> BB 1   DD -> BB _   EE -> BB _
+AA -> CC _   BB -> CC 1   CC -> CC _   DD -> CC 1   EE -> CC _
+AA -> DD 1   BB -> DD _   CC -> DD 1   DD -> DD _   EE -> DD 1
+AA -> EE _   BB -> EE _   CC -> EE _   DD -> EE 1   EE -> EE _
+AA -> FF _   BB -> FF _   CC -> FF _   DD -> FF _   EE -> FF 1
+AA -> GG _   BB -> GG _   CC -> GG _   DD -> GG _   EE -> GG _
+AA -> HH _   BB -> HH _   CC -> HH _   DD -> HH _   EE -> HH _
+AA -> II 1   BB -> II _   CC -> II _   DD -> II _   EE -> II _
+AA -> JJ _   BB -> JJ _   CC -> JJ _   DD -> JJ _   EE -> JJ _
+
+
+FF -> AA _   GG -> AA _   HH -> AA _   II -> AA 1   JJ -> AA _
+FF -> BB _   GG -> BB _   HH -> BB _   II -> BB _   JJ -> BB _
+FF -> CC _   GG -> CC _   HH -> CC _   II -> CC _   JJ -> CC _
+FF -> DD _   GG -> DD _   HH -> DD _   II -> DD _   JJ -> DD _
+FF -> EE 1   GG -> EE _   HH -> EE _   II -> EE _   JJ -> EE _
+FF -> FF _   GG -> FF 1   HH -> FF _   II -> FF _   JJ -> FF _
+FF -> GG 1   GG -> GG _   HH -> GG 1   II -> GG _   JJ -> GG _
+FF -> HH _   GG -> HH 1   HH -> HH _   II -> HH _   JJ -> HH _
+FF -> II _   GG -> II _   HH -> II _   II -> II _   JJ -> II 1
+FF -> JJ _   GG -> JJ _   HH -> JJ _   II -> JJ 1   JJ -> JJ _
+
+// distances (actual)
+// look through connections, and combine paths?
+// look at AA, look at conns of size 1, get _those_ paths, look at values, and set their conn to A with len + 1 (if path is smaller!) 
+// connect reverse as well?
+
+(unreversed)
+AA -> AA _   BB -> AA 1   CC -> AA 2   DD -> AA 1   EE -> AA 2
+AA -> BB 1   BB -> BB _   CC -> BB 1   DD -> BB 2   EE -> BB 3
+AA -> CC 2   BB -> CC 1   CC -> CC _   DD -> CC 1   EE -> CC 2
+AA -> DD 1   BB -> DD 2   CC -> DD 1   DD -> DD _   EE -> DD 1
+AA -> EE 2   BB -> EE 3   CC -> EE 4   DD -> EE 1   EE -> EE _
+AA -> FF _   BB -> FF _   CC -> FF _   DD -> FF _   EE -> FF 1
+AA -> GG _   BB -> GG _   CC -> GG _   DD -> GG _   EE -> GG _
+AA -> HH _   BB -> HH _   CC -> HH _   DD -> HH _   EE -> HH _
+AA -> II 1   BB -> II 2   CC -> II 3   DD -> II 2   EE -> II 3
+AA -> JJ 2   BB -> JJ 3   CC -> JJ 4   DD -> JJ 3   EE -> JJ 4
+
+
+FF -> AA 3   GG -> AA 4   HH -> AA 5   II -> AA 1   JJ -> AA 2
+FF -> BB 4   GG -> BB 5   HH -> BB 6   II -> BB 2   JJ -> BB 3
+FF -> CC 3   GG -> CC 4   HH -> CC 5   II -> CC 3   JJ -> CC 4
+FF -> DD 2   GG -> DD 3   HH -> DD 4   II -> DD 2   JJ -> DD 3
+FF -> EE 1   GG -> EE 2   HH -> EE 3   II -> EE 3   JJ -> EE 4
+FF -> FF _   GG -> FF 1   HH -> FF 2   II -> FF _   JJ -> FF _
+FF -> GG 1   GG -> GG _   HH -> GG 1   II -> GG _   JJ -> GG _
+FF -> HH _   GG -> HH 1   HH -> HH _   II -> HH _   JJ -> HH _
+FF -> II 4   GG -> II 5   HH -> II 6   II -> II -   JJ -> II 1
+FF -> JJ 5   GG -> JJ 6   HH -> JJ 7   II -> JJ 1   JJ -> JJ 2
+
+(reversed)
+AA -> AA _   BB -> AA 1   CC -> AA 2   DD -> AA 1   EE -> AA 2
+AA -> BB 1   BB -> BB _   CC -> BB 1   DD -> BB 2   EE -> BB 3
+AA -> CC 2   BB -> CC 1   CC -> CC _   DD -> CC 1   EE -> CC 2
+AA -> DD 1   BB -> DD 2   CC -> DD 1   DD -> DD _   EE -> DD 1
+AA -> EE 2   BB -> EE 3   CC -> EE 2   DD -> EE 1   EE -> EE _
+AA -> FF 3   BB -> FF 4   CC -> FF 3   DD -> FF 2   EE -> FF 1
+AA -> GG 4   BB -> GG 5   CC -> GG 4   DD -> GG 3   EE -> GG 2
+AA -> HH 5   BB -> HH 6   CC -> HH 5   DD -> HH 4   EE -> HH 3
+AA -> II 1   BB -> II 2   CC -> II 3   DD -> II 2   EE -> II 3
+AA -> JJ 2   BB -> JJ 3   CC -> JJ 4   DD -> JJ 3   EE -> JJ 4
+
+
+FF -> AA 3   GG -> AA 4   HH -> AA 5   II -> AA 1   JJ -> AA 2
+FF -> BB 4   GG -> BB 5   HH -> BB 6   II -> BB 2   JJ -> BB 3
+FF -> CC 3   GG -> CC 4   HH -> CC 5   II -> CC 3   JJ -> CC 4
+FF -> DD 2   GG -> DD 3   HH -> DD 4   II -> DD 2   JJ -> DD 3
+FF -> EE 1   GG -> EE 2   HH -> EE 3   II -> EE 3   JJ -> EE 4
+FF -> FF _   GG -> FF 1   HH -> FF 2   II -> FF 4   JJ -> FF 5
+FF -> GG 1   GG -> GG _   HH -> GG 1   II -> GG 5   JJ -> GG 6
+FF -> HH 2   GG -> HH 1   HH -> HH _   II -> HH 6   JJ -> HH 7
+FF -> II 4   GG -> II 5   HH -> II 6   II -> II -   JJ -> II 1
+FF -> JJ 5   GG -> JJ 6   HH -> JJ 7   II -> JJ 1   JJ -> JJ _
+
+ AA{0}      +--> EE{3} <---> FF{0}
+ ^ ^ ^      |                  ^
+ | | |      v                  |
+ | | +---> DD{20} <---+        +---> GG{0} <--> HH{22}
+ | |                  |
+ | +----> II{0} <-----------> JJ{21}
+ |                    |
+ +-----> BB{13} <--> CC{2}
+
+**look up dikstra's algo**
+
+AA <-> BB 1
+AA <-> CC 2
+AA <-> DD 1
+AA <-> EE 2
+AA <-> FF 3
+AA <-> GG 4
+AA <-> HH 5
+AA <-> II 1
+AA <-> JJ 2
+BB <-> CC 1
+BB <-> DD 2
+BB <-> EE 3
+BB <-> FF 4
+BB <-> GG 5
+BB <-> HH 6
+BB <-> II 2
+BB <-> JJ 3
+CC <-> DD 1
+CC <-> EE 2
+CC <-> FF 3
+CC <-> GG 4
+CC <-> HH 5
+CC <-> II 3
+CC <-> JJ 4
+DD <-> EE 1
+DD <-> FF 2
+DD <-> GG 3
+DD <-> HH 4
+DD <-> II 2
+DD <-> JJ 3
+EE <-> FF 1
+EE <-> GG 2
+EE <-> HH 3
+EE <-> II 3
+EE <-> JJ 4
+FF <-> GG 1
+FF <-> HH 2
+FF <-> II 4
+FF <-> JJ 5
+GG <-> HH 1
+GG <-> II 5
+GG <-> JJ 6
+HH <-> II 6
+HH <-> JJ 7
+II <-> JJ 1
