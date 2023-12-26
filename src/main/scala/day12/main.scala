@@ -25,16 +25,16 @@ object Main {
     println("Done")
   }
 
-  def bold(s: String) : String  = { s"\033[1m$s\033[21m" }
-  def inverted(s: String) : String  = { s"\033[7m$s\033[27m" }
-  def red(s: String): String    = { s"\033[31m$s\033[39m" }
-  def yellow(s: String): String = { s"\033[93m$s\033[39m" }
-  def blue(s: String): String   = { s"\033[34m$s\033[39m" }
+  def bold(s: String) : String  = { s"\\033[1m$s\\033[21m" }
+  def inverted(s: String) : String  = { s"\\033[7m$s\\033[27m" }
+  def red(s: String): String    = { s"\\033[31m$s\\033[39m" }
+  def yellow(s: String): String = { s"\\033[93m$s\\033[39m" }
+  def blue(s: String): String   = { s"\\033[34m$s\\033[39m" }
 
 
   @tailrec
   def stagedWalk(grid: Grid[Int], coord: Coordinate, lastChar: Char):Unit = {
-    print("\033[2J")
+    print("\\033[2J")
 
     println(grid.renderBetter(grid.intToStr, Map{
       coord -> inverted(bold(red(grid.intToStr(grid.at(coord)))))
