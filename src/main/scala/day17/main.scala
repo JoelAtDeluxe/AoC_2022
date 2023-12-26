@@ -6,9 +6,8 @@ import scala.io.Source
 import scala.annotation.tailrec
 import java.io.BufferedWriter
 import java.io.FileWriter
-import ujson.Bool
 
-object StringMain {
+object Main {
     def main(args: Array[String]) = {
         val jet = Source
             .fromResource("days11_20/day17_input.txt")
@@ -28,7 +27,7 @@ object StringMain {
         // recycle memory instead of extending
 
         var start = System.currentTimeMillis()
-        val droppings = simulate(shaft, nextShapeFn, nextJetFn, 0, 1000000000000l, shaft.length - 1)
+        val droppings = simulate(shaft, nextShapeFn, nextJetFn, 0, 20220, shaft.length - 1)
         // 2022 => 3098
         // 20220 => 30824
         var end = System.currentTimeMillis()
@@ -161,32 +160,31 @@ object StringMain {
     //     )
 
     //     var shape = Grid.el
-    //     // println(Grid.drawShaftWithShape(grid, shape, 2))
+    //     println(Grid.drawShaftWithShape(grid, shape, 2))
 
-    //     assert(canMoveDown(shape, grid, 2) == canMoveDown2(shape, grid, 2))
+    //     assert(canMoveDown(shape, grid, 2) == canMoveDown(shape, grid, 2))
     //     grid(3) = 0x10
     //     // println(Grid.drawShaftWithShape(grid, shape, 2))
-    //     assert(canMoveDown(shape, grid, 2) == canMoveDown2(shape, grid, 2))
+    //     assert(canMoveDown(shape, grid, 2) == canMoveDown(shape, grid, 2))
     //     shape = Grid.plus
-    //     assert(canMoveDown(shape, grid, 2) == canMoveDown2(shape, grid, 2))
+    //     assert(canMoveDown(shape, grid, 2) == canMoveDown(shape, grid, 2))
 
     //     grid(2) = 0x10
     //     println(Grid.drawShaftWithShape(grid, shape, 2))
-    //     assert(canMoveDown(shape, grid, 2) == canMoveDown2(shape, grid, 2))
-        
+    //     assert(canMoveDown(shape, grid, 2) == canMoveDown(shape, grid, 2))
 
     //     for (i <- 0 until 20) {
     //         var start = System.currentTimeMillis()
-    //         (0 until 1000000).foreach( x => canMoveDown(shape, grid, 2))
+    //         (0 until 100000).foreach( x => canMoveDown(shape, grid, 2))
     //         var end = System.currentTimeMillis()
     //         println(s"original: ${end - start}")
 
     //         start = System.currentTimeMillis()
-    //         (0 until 1000000).foreach( x => canMoveDown2(shape, grid, 2))
+    //         (0 until 100000).foreach( x => canMoveDown(shape, grid, 2))
     //         end = System.currentTimeMillis()
     //         println(s"revised: ${end - start}")
+
     //     }
-    //     // assert(canMoveLeft(shape, grid, 2) == canMoveLeftTwo(shape,grid,2))
     // }
 }
 
