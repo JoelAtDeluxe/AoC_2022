@@ -19,11 +19,22 @@ object StringMain {
             Grid.lineLR, Grid.plus, Grid.el,
             Grid.lineUD, Grid.square
         )
-        val nextShapeFn = makeLoopedItr(shapes)
-        val nextJetFn = makeLoopedItr(jet)
+        val nextShapeFn = Helpers.makeLoopedItr(shapes)
+        val nextJetFn = Helpers.makeLoopedItr(jet)
         val shaft = Grid.initialGrid()       
 
-        val droppings = simulate(shaft, nextShapeFn, nextJetFn, 0, 2022)
+        // test()
+        // ideas:
+        // speed up finding highest point -- use binary search
+        // recycle memory instead of extending
+
+        var start = System.currentTimeMillis()
+        val droppings = simulate(shaft, nextShapeFn, nextJetFn, 0, 2022, shaft.length - 1)
+        // 2022 => 3098
+        // 20220 => 30824
+        var end = System.currentTimeMillis()
+        println(s"time: ${end - start}")
+        // println(Grid.drawShaft(droppings))
         val shaftTotalHeight = droppings.length - 1
         
         val topIndex = droppings.indexWhere(entry => {
@@ -34,21 +45,33 @@ object StringMain {
     }
 
     @tailrec
-    def simulate(shaft: Array[Int], nextShape: ()=>Array[Int], nextJet: ()=>Char, step: Long, limit: Long): Array[Int] = {
+    def simulate(
+        shaft: Array[Int],
+        nextShape: ()=>Array[Int],
+        nextJet: ()=>Char,
+        step: Long,
+        limit: Long,
+        lowestPoint: Int
+    ): Array[Int] = {
         if (step != limit) {
-            val shape = nextShape()
-            var highestPoint = shaftHighestPoint(shaft)
-            val shaftHeight = shaft.length
-            val requiredHeight = (highestPoint - 4 - shape.length)
-            
-            val newShaft = 
-                if (requiredHeight >= 0) shaft
-                else Grid.extension ++ shaft
-            val dropFrom = shaftHighestPoint(newShaft) - 4 // -1 extra to move above highest point
+            val shape = nextShape().clone
+            val dropFrom = lowestPoint - 1
+            val renderSize = dropFrom - (shape.length-1)
 
-            val (stoppedShape, stopIndex) = dropShape(newShaft, shape, nextJet, dropFrom)
+            val (newShaft, growthOffset) = 
+                if (renderSize >= 0) (shaft, 0)
+                else {
+                    val newShaft = Grid.extend(shaft)
+                    val growth = newShaft.length - shaft.length
+                    (newShaft, growth)
+                }
+
+            fastDrop(shape, nextJet)
+
+            val (stoppedShape, stopIndex) = dropShape(newShaft, shape, nextJet, dropFrom+growthOffset)
             Grid.applyShape(newShaft, stoppedShape, stopIndex)
-            simulate(newShaft, nextShape, nextJet, step+1, limit)
+            val newLowestPoint = math.min(stopIndex - (stoppedShape.length-1), lowestPoint + growthOffset)
+            simulate(newShaft, nextShape, nextJet, step+1, limit, newLowestPoint)
         } else {
             shaft
         }
@@ -59,8 +82,8 @@ object StringMain {
         val push = nextJet()
 
         val newShape = push match {
-            case '>' => if (canMoveRight(shape, shaft, shaftIndex)) moveRight(shape) else shape
-            case '<' => if (canMoveLeft(shape, shaft, shaftIndex)) moveLeft(shape) else shape
+            case '>' => if (Helpers.canMoveRight(shape, shaft, shaftIndex)) moveRight(shape) else shape
+            case '<' => if (Helpers.canMoveLeft(shape, shaft, shaftIndex)) moveLeft(shape) else shape
         }
         if (canMoveDown(newShape, shaft, shaftIndex+1)) {
             dropShape(shaft, newShape, nextJet, shaftIndex+1)
@@ -69,35 +92,53 @@ object StringMain {
         }
     }
 
-    def shaftHighestPoint(shaft: Array[Int]) = shaft.zipWithIndex.find(pair => pair._1 > 0).get._2
+    // fastDrop is a minor optimization that forgoes the first drop left/right check (will always pass)
+    // plus ignores the matching against objects for the next two drops
+    def fastDrop(shape: Array[Int], nextJet: ()=>Char) = {
+        if (nextJet() == '<')
+            moveLeftMut(shape)
+        else
+            moveRightMut(shape) 
+            
+        for ( _ <- 0 until 2) {
+            nextJet() match {
+                case '<' => if (canMoveLeftFast(shape)) moveLeftMut(shape)
+                case _ => if (canMoveRightFast(shape)) moveRightMut(shape)
+            }
+        }
+        shape
+    }
+
     def moveLeft(shape: Array[Int]) = shape.map(v => v << 1)
     def moveRight(shape: Array[Int]) = shape.map(v => v >> 1)
 
-    def canMoveLeft(shape: Array[Int], shaft: Array[Int], shaftIndex: Int) = {
-        val possibleShape = shape.map(v => v << 1)
-        val overlaps = possibleShape.zipWithIndex.map(entry => {
-            val overlap = shaft(shaftIndex - entry._2) & possibleShape(shape.length - 1 - entry._2)
-            overlap > 0
-        }).find(x => x)
-
-        val outOfBounds = shape
-            .map(v => (v & 0x40) > 1 ) // 0100 0000 is furtheest left (1000 0000 is wall), so can't move more left
+    def canMoveLeftFast(shape: Array[Int]) = {
+        val outOfBounds = shape.iterator
+            .map(v => (v & 0x40) > 1 )
             .find(v=> v)
-        overlaps.isEmpty && outOfBounds.isEmpty
+        outOfBounds.isEmpty
     }
-
-    def canMoveRight(shape: Array[Int], shaft: Array[Int], shaftIndex: Int) = {
-        val possibleShape = shape.map(v => v >> 1)
-        val overlaps = possibleShape.zipWithIndex.map(entry => {
-            val overlap = shaft(shaftIndex - entry._2) & possibleShape(shape.length - 1 - entry._2) 
-            overlap > 0
-        }).find(x => x)
-
-        val outOfBounds = shape
+    def canMoveRightFast(shape: Array[Int]) = {
+        val outOfBounds = shape.iterator
             .map(v => (v & 0x1) == 1) // 0x01 is furthest right, so it can't move more right
             .find(v=> v)
-        overlaps.isEmpty && outOfBounds.isEmpty
+        outOfBounds.isEmpty
     }
+
+
+    def moveLeftMut(shape: Array[Int]) = {
+        for (i <- 0 until shape.length) {
+            shape(i) = shape(i) << 1
+        }
+        shape
+    }
+    def moveRightMut(shape: Array[Int]) = {
+        for (i <- 0 until shape.length) {
+            shape(i) = shape(i) >> 1
+        }
+        shape
+    }
+
     def canMoveDown(shape: Array[Int], shaft: Array[Int], shaftIndex: Int) = {
         val overlaps = shape.zipWithIndex.map(entry => {
             val overlap = shaft(shaftIndex - entry._2) & shape(shape.length - 1 - entry._2) 
@@ -105,84 +146,40 @@ object StringMain {
         }).find(x => x)
         overlaps.isEmpty
     }
+    
+    // def test() = {
+    //     var grid = Array[Int](
+    //         0x0,
+    //         0x0,
+    //         0x0,
+    //         0x127,
+    //     )
 
-    def makeLoopedItr[T](list: Array[T]): () => T = {
-        var count = 0
-        def next(): T = {
-            val rtn = list(count)
-            count = (count + 1) % list.length 
-            rtn
-        }
-        next
-    }
+    //     var shape = Grid.plus
+    //     assert(canMoveLeft(shape, grid, 2) == Helpers.canMoveLeft(shape,grid,2))
+    //     grid(2) = 0x70
+    //     assert(canMoveLeft(shape, grid, 2) == Helpers.canMoveLeft(shape,grid,2))
+    //     grid(2) = 0x60
+    //     assert(canMoveLeft(shape, grid, 2) == Helpers.canMoveLeft(shape,grid,2))
+    //     grid(2) = 0x0
+    //     grid(1) = 0x60
+    //     assert(canMoveLeft(shape, grid, 2) == Helpers.canMoveLeft(shape,grid,2))
+
+
+    //     for (i <- 0 until 10) {
+    //         var start = System.currentTimeMillis()
+    //         (0 until 1000000).foreach( x => canMoveLeft(shape, grid, 2))
+    //         var end = System.currentTimeMillis()
+    //         println(s"original: ${end - start}")
+
+    //         start = System.currentTimeMillis()
+    //         (0 until 1000000).foreach( x => Helpers.canMoveLeft(shape, grid, 2))
+    //         end = System.currentTimeMillis()
+    //         println(s"revised: ${end - start}")
+    //     }
+    //     // assert(canMoveLeft(shape, grid, 2) == canMoveLeftTwo(shape,grid,2))
+    // }
 }
 
-object Grid {
 
-    def applyShape(shaft: Array[Int], shape: Array[Int], shaftIndex: Int) = {
-        for (i <- (0 until shape.length)) {
-            shaft(shaftIndex - i) = shaft(shaftIndex - i) | shape(shape.length-1-i)
-        }
-    }
-
-    def drawShaft(shaft: Array[Int], better: Boolean = false): String = {
-        val thing = shaft
-            .map(_.toBinaryString
-                .reverse.padTo(7, '0').reverse
-                .map(c => if (c == '0') '.' else '#')
-                .mkString
-                .mkString("|", "", "|")
-            )
-        thing(thing.length - 1) = "+-------+"
-        thing.mkString("\n")
-    }
-
-    def drawShaftWithShape(shaft: Array[Int], shape: Array[Int], shaftIndex: Int): String = {
-        // overlay shape
-        val playShaft = shaft.clone
-        applyShape(playShaft, shape, shaftIndex)
-        drawShaft(playShaft)
-    }
-
-    def initialGrid(): Array[Int] = {
-        Array[Int](
-            0x00,  //x000|0000  | |.......
-            0x00,  //x000|0000  | |.......
-            0x00,  //x000|0000  | |.......
-            0x7F,  //x111|1111  | |#######
-        )  
-    }
-
-    val extension = Array[Int](
-            0x00,  //x000|0000  | |.......
-            0x00,  //x000|0000  | |.......
-            0x00,  //x000|0000  | |.......
-            0x00,  //x000|0000  | |.......
-        )
-
-    val lineUD = Array[Int](
-            0x10,  //x001|0000  | |..#....
-            0x10,  //x001|0000  | |..#....
-            0x10,  //x001|0000  | |..#....
-            0x10,  //x001|0000  | |..#....
-        )
-    val plus = Array[Int](
-            0x08,  //x000|1000  |...#...
-            0x1C,  //x001|1100  |..###..
-            0x08,  //x000|1000  |...#...
-        )
-    val el = Array[Int](
-        0x04,  //x000|0100  |....#..
-        0x04,  //x000|0100  |....#..
-        0x1C,  //x001|1100  |..###..
-    )
-
-    val lineLR = Array[Int](
-        0x1E  //x001|1110  |..####.
-    )  
-    val square = Array[Int](
-        0x18,  //x001|1000  |..##...
-        0x18,  //x001|1000  |..##...
-    )
-}
 
