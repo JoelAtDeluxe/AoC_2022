@@ -24,7 +24,7 @@ class Ticker(val source: Iterator[String]) extends Iterator[MachineState] {
       val bufferActions = (0 until action.ticks - 1)
         .map(_=>Noop()) :+ action
 
-      actionQueue.enqueue(bufferActions:_*)
+      actionQueue.enqueue(elems = bufferActions: _*)
     }
     val step = actionQueue.dequeue()
     val cellInc = step match {
