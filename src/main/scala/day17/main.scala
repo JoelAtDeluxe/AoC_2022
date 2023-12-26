@@ -21,15 +21,14 @@ object StringMain {
         )
         val nextShapeFn = Helpers.makeLoopedItr(shapes)
         val nextJetFn = Helpers.makeLoopedItr(jet)
-        val shaft = Grid.initialGrid()       
+        val shaft = Grid.initialGrid()
 
         // test()
         // ideas:
-        // speed up finding highest point -- use binary search
         // recycle memory instead of extending
 
         var start = System.currentTimeMillis()
-        val droppings = simulate(shaft, nextShapeFn, nextJetFn, 0, 2022, shaft.length - 1)
+        val droppings = simulate(shaft, nextShapeFn, nextJetFn, 0, 1000000000000l, shaft.length - 1)
         // 2022 => 3098
         // 20220 => 30824
         var end = System.currentTimeMillis()
@@ -140,40 +139,50 @@ object StringMain {
     }
 
     def canMoveDown(shape: Array[Int], shaft: Array[Int], shaftIndex: Int) = {
-        val overlaps = shape.zipWithIndex.map(entry => {
-            val overlap = shaft(shaftIndex - entry._2) & shape(shape.length - 1 - entry._2) 
-            overlap > 0
-        }).find(x => x)
-        overlaps.isEmpty
+        shape
+            .reverseIterator
+            .take(2) // to account for the 2nd layer of plus
+            .zipWithIndex
+            .map( entry =>
+                shaft(shaftIndex - entry._2) & shape(shape.length - 1 - entry._2)
+            )
+            .find(x => x > 0)
+            .isEmpty
     }
-    
+
+
     // def test() = {
     //     var grid = Array[Int](
+    //         0x0,
     //         0x0,
     //         0x0,
     //         0x0,
     //         0x127,
     //     )
 
-    //     var shape = Grid.plus
-    //     assert(canMoveLeft(shape, grid, 2) == Helpers.canMoveLeft(shape,grid,2))
-    //     grid(2) = 0x70
-    //     assert(canMoveLeft(shape, grid, 2) == Helpers.canMoveLeft(shape,grid,2))
-    //     grid(2) = 0x60
-    //     assert(canMoveLeft(shape, grid, 2) == Helpers.canMoveLeft(shape,grid,2))
-    //     grid(2) = 0x0
-    //     grid(1) = 0x60
-    //     assert(canMoveLeft(shape, grid, 2) == Helpers.canMoveLeft(shape,grid,2))
+    //     var shape = Grid.el
+    //     // println(Grid.drawShaftWithShape(grid, shape, 2))
 
+    //     assert(canMoveDown(shape, grid, 2) == canMoveDown2(shape, grid, 2))
+    //     grid(3) = 0x10
+    //     // println(Grid.drawShaftWithShape(grid, shape, 2))
+    //     assert(canMoveDown(shape, grid, 2) == canMoveDown2(shape, grid, 2))
+    //     shape = Grid.plus
+    //     assert(canMoveDown(shape, grid, 2) == canMoveDown2(shape, grid, 2))
 
-    //     for (i <- 0 until 10) {
+    //     grid(2) = 0x10
+    //     println(Grid.drawShaftWithShape(grid, shape, 2))
+    //     assert(canMoveDown(shape, grid, 2) == canMoveDown2(shape, grid, 2))
+        
+
+    //     for (i <- 0 until 20) {
     //         var start = System.currentTimeMillis()
-    //         (0 until 1000000).foreach( x => canMoveLeft(shape, grid, 2))
+    //         (0 until 1000000).foreach( x => canMoveDown(shape, grid, 2))
     //         var end = System.currentTimeMillis()
     //         println(s"original: ${end - start}")
 
     //         start = System.currentTimeMillis()
-    //         (0 until 1000000).foreach( x => Helpers.canMoveLeft(shape, grid, 2))
+    //         (0 until 1000000).foreach( x => canMoveDown2(shape, grid, 2))
     //         end = System.currentTimeMillis()
     //         println(s"revised: ${end - start}")
     //     }
