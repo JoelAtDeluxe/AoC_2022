@@ -4,8 +4,6 @@ package day17
 
 import scala.io.Source
 import scala.annotation.tailrec
-import java.io.BufferedWriter
-import java.io.FileWriter
 
 object Main {
     def main(args: Array[String]) = {
@@ -23,23 +21,53 @@ object Main {
         val shaft = Grid.initialGrid()
 
         // test()
-        // ideas:
-        // recycle memory instead of extending
+
+        // Calculated reference points for input
+        // 2022 => 3098
+        // 4044 => 6154
+        // 6066 => 9249
+        // 20220 => 30824
 
         var start = System.currentTimeMillis()
-        val droppings = simulate(shaft, nextShapeFn, nextJetFn, 0, 20220, shaft.length - 1)
-        // 2022 => 3098
-        // 20220 => 30824
+        val result2022 = runSimulation(shapes, jet, 2022, true)
         var end = System.currentTimeMillis()
-        println(s"time: ${end - start}")
-        // println(Grid.drawShaft(droppings))
-        val shaftTotalHeight = droppings.length - 1
-        
-        val topIndex = droppings.indexWhere(entry => {
-            entry != 0
-        })
-        println(shaftTotalHeight - topIndex)
+        println(s"Part 1: Simulated at 2022 steps; Height of column: ${result2022}")
+        println(s"Simulation completed in: ${end - start}ms")
 
+        start = System.currentTimeMillis()
+        val result1T = runSimulation(shapes, jet, 1000000000000l)
+        end = System.currentTimeMillis()
+        println(s"Part 2: Simulated at 1 trillion steps; Height of column: ${result1T}")
+        println(s"Simulation completed in: ${end - start}ms")
+    }
+
+
+    def runSimulation(
+        shapes: Array[Array[Int]],
+        jetStream: Array[Char],
+        desiredIterations: Long,
+        doFull: Boolean = false
+    ): Long = {
+        // these are specific to my input
+        // found by looking for a repeat in the output, then finding the start and length
+        val numStepsToStartOfCycle = 95
+        val numStepsInCycle = 1715
+        val numRowsInCycle = 2616
+        val offsetIterations = desiredIterations - numStepsToStartOfCycle
+        val numFullCycles = offsetIterations / numStepsInCycle
+        val stepsToEmulate = (offsetIterations % numStepsInCycle) + numStepsToStartOfCycle
+        val fullCycleHeight = numFullCycles * numRowsInCycle
+
+        val nextShape = Helpers.makeLoopedItr(shapes)
+        val nextJet = Helpers.makeLoopedItr(jetStream)
+        val shaft = Grid.initialGrid()
+
+        val droppings = simulate(shaft, nextShape, nextJet, 0, stepsToEmulate, shaft.length - 1)   
+        val shaftTotalHeight = droppings.length - 1        
+        val topIndex = droppings.indexWhere(_ != 0)
+        val emulatedHeight = shaftTotalHeight - topIndex
+
+        fullCycleHeight + emulatedHeight
     }
 
     @tailrec
@@ -187,6 +215,3 @@ object Main {
     //     }
     // }
 }
-
-
-

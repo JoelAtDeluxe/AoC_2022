@@ -1,5 +1,9 @@
 package day17
 
+import java.io.BufferedWriter
+import java.io.FileWriter
+import java.io.File
+
 object Helpers {
 
     def makeLoopedItr[T](list: Array[T]): () => T = {
@@ -37,4 +41,11 @@ object Helpers {
     def canMoveLeft = mkCanMove( _<<1, (_ & 0x40) )
     def canMoveRight = mkCanMove( _>>1, (_ & 0x1) )
 
+
+    def writeFile(name: String, data: String) = {
+        val file = new File(name)
+        val fw = new BufferedWriter(new FileWriter(file))
+        fw.write(data)
+        fw.close()
+    }
 }

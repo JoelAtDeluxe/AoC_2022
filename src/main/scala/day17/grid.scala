@@ -33,7 +33,7 @@ object Grid {
     }
 
     def initialGrid(): Array[Int] = {
-        val upperLimit = 4000
+        val upperLimit = 2800 // shouldn't need to grow if this accounts for the simulation + 95 lines
         (0 until upperLimit).map(x => if(x==upperLimit-1) 0x7F else 0).toArray
     }
 
